@@ -273,7 +273,9 @@ public class SettingsDialog extends JDialog {
 
 
 		rbTargetColoring.setSelected(true);
-		model.setAgentColoring(AgentColoring.TARGET);
+
+		//Only clicking the settings button will render the group coloring active.
+		model.setAgentColoring(AgentColoring.GROUP);
 
 		group = new ButtonGroup();
 		group.add(rbTargetColoring);

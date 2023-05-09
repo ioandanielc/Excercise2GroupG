@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+
 public abstract class SimulationRenderer extends DefaultRenderer {
 
     private static Logger logger = Logger.getLogger(SimulationRenderer.class);
@@ -299,14 +300,15 @@ public abstract class SimulationRenderer extends DefaultRenderer {
         this.agentRender = agentRender;
     }
 
-    public Color getPedestrianColor(@NotNull final Agent agent) {
+    public synchronized Color getPedestrianColor(@NotNull final Agent agent) {
 	    int targetId = agent.hasNextTarget() ? agent.getNextTargetId() : -1;
 
 	    switch (model.config.getAgentColoring()) {
 		    case TARGET:
 		        return model.config.getColorByTargetId(targetId).orElseGet(model.config::getPedestrianDefaultColor);
 		    case RANDOM:
-		        return model.config.getRandomColor(agent.getId());
+                //logger.info("XXXXXXXXXXXXXXXXXXXXX " + model.getGroupColor((Pedestrian)agent));
+                return model.config.getRandomColor(agent.getId());
             case SELF_CATEGORY:
                 if (agent instanceof Pedestrian) {
                     Pedestrian pedestrian = (Pedestrian) agent;
@@ -327,7 +329,25 @@ public abstract class SimulationRenderer extends DefaultRenderer {
 		    }
 		    case GROUP: {
 			    if (agent instanceof Pedestrian) {
-				    return model.getGroupColor((Pedestrian)agent);
+
+			        //The colors for the different states.
+                    Color red = new Color(255, 0, 0); //Infected
+                    Color green = new Color(0, 255, 0); //Susceptible
+                    Color blue = new Color(0, 0, 255); // Default
+                    Color light_blue = new Color(0, 200, 255); //Recovered
+
+                    //The SIRGroup-s are the only groups we are using, hence we have previously hardcoded the group ID-s the following way:
+                    //0 = red = infected
+                    //1 = green = susceptible
+                    //2 = light_blue = recovered
+                    //other groups = blue = not in the SIR model
+                    if (((Pedestrian)agent).group == 0)
+			            return red;
+                    else if (((Pedestrian)agent).group == 1)
+                        return green;
+                    else if (((Pedestrian)agent).group == 2)
+                        return light_blue;
+				    return blue;
 			    }
 		    }
             case HEALTH_STATUS: {

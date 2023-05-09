@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.NotNull;
+import org.vadere.gui.projectview.VadereApplication;
 import org.vadere.meshing.mesh.gen.PMesh;
 import org.vadere.meshing.mesh.inter.IMesh;
 import org.vadere.state.scenario.Agent;
@@ -15,11 +16,15 @@ import org.vadere.state.scenario.Pedestrian;
 import org.vadere.util.geometry.shapes.IPoint;
 import org.vadere.util.geometry.shapes.VRectangle;
 
+import org.vadere.util.logging.Logger;
+
 public abstract class SimulationModel<T extends DefaultSimulationConfig> extends DefaultModel {
 
 	public final T config;
 	private ConcurrentHashMap<Integer, Color> colorMap;
 	private Random random;
+
+	private static Logger logger = Logger.getLogger(SimulationModel.class);
 
 	@SuppressWarnings("unchecked")
 	public SimulationModel(final T config) {
@@ -100,16 +105,34 @@ public abstract class SimulationModel<T extends DefaultSimulationConfig> extends
     public abstract boolean isAlive(int pedId);
 
 	public Color getGroupColor(@NotNull final  Pedestrian ped) {
+		if (!ped.getGroupIds().isEmpty()) {
+			int groupId = ped.getGroupIds().getFirst();
+			colorMap.put(0, new Color(255, 0, 0));
+			colorMap.put(1, new Color(0, 255, 0));
+			Color c = colorMap.get(groupId);
+
+			//logger.info("Ped " + ped.getId() + " in group " + ped.getGroupIds() + " should have the colour " + c.toString());
+
+			return c;
+		}
 		if (ped.getGroupIds().isEmpty() || (!ped.getGroupSizes().isEmpty() && ped.getGroupSizes().getFirst() == 1)) {
+			//logger.info("caca");
+
 			return config.getPedestrianDefaultColor();
 		}
 
 		int groupId = ped.getGroupIds().getFirst();
+		colorMap.put(0, new Color(255, 0, 0));
+		colorMap.put(1, new Color(0, 255, 0));
 		Color c = colorMap.get(groupId);
+
 		if (c == null) {
 			c = new Color(Color.HSBtoRGB(random.nextFloat(), 1f, 0.75f));
 			colorMap.put(groupId, c);
 		}
+
+
+
 		return c;
 	}
 

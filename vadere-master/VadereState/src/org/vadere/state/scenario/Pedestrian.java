@@ -41,6 +41,8 @@ public class Pedestrian extends Agent {
 
     private LinkedList<Pedestrian> agentsInGroup = new LinkedList<>();
 
+    public int group = -1;
+
 
     /**
      * trajectory is a list of foot steps a pedestrian made during the duration of one time step.
