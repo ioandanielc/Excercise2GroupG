@@ -1,0 +1,1 @@
+import run_vadere_console_with_all_scenario_files
